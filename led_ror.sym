@@ -1,0 +1,4 @@
+.label loop1=$800a {
+}
+.label mainProg=$8000 {
+}

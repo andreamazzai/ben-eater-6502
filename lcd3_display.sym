@@ -1,0 +1,8 @@
+.label helloworld=$8078
+.label init=$8000
+.label lcd_text=$8067
+.label check_busy=$804b
+.label BF_busy=$8050
+.label lcd_instruction=$803c
+.label loop=$8039
+.label print_char=$802c
