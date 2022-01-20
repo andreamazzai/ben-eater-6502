@@ -420,3 +420,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Custom Andrea
+
+*.bin
+*.sym
+
