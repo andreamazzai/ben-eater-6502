@@ -1,6 +1,0 @@
-.label helloworld=$8057
-.label init=$8000
-.label lcd_text=$8049
-.label lcd_instruction=$8039
-.label loop=$8036
-.label print_char=$8029
