@@ -2,6 +2,7 @@
 
 //----------------------------------------------------
 // 			Main Program
+//			Questo codice funziona fino a 210 KHz
 //----------------------------------------------------
 			*=$8000
 .encoding	"ascii"
@@ -34,7 +35,12 @@ init:
 			sta	PORT_B
 			jsr lcd_instruction
 
-// ----- @Step 3 Display On Off@ -----
+// ----- @Step 3a Clear Display@ -----
+			lda #%00000001			// Clear Display, set DDRAM Address 0 in AC 
+			sta	PORT_B
+			jsr lcd_instruction
+
+// ----- @Step 3b Display On Off@ -----
 			lda #%00001110			// Display On; Curson On; Blink Off 
 			sta	PORT_B
 			jsr lcd_instruction
@@ -64,18 +70,20 @@ lcd_instruction:
 			jsr check_busy
 			lda #0					// clear RS RW EN 
 			sta	PORT_A
-			lda #EN					// set EN = 1, passiamo all'LCD il comando presente in PORT_B
+			ora #EN					// Strobe EN
 			sta PORT_A
-			lda #0					// clear RS RW EN 
+			eor #EN
 			sta	PORT_A
 			rts
 
 lcd_text:
 			jsr check_busy
 			sta	PORT_B				// scrive il carattere sulla porta B
-			lda #(RS | EN)			// abilitiamo anche EN = GO per dare il via al comando
+			lda #RS					// abilitiamo anche EN = GO per dare il via al comando
 			sta PORT_A
-			lda #RS 				// disabilito EN
+			ora #EN					// Strobe EN
+			sta PORT_A
+			eor #EN
 			sta	PORT_A
 			rts
 
@@ -84,9 +92,11 @@ check_busy:
 			lda #%00000000			// set pins for input per leggere il Busy Flag (e l'Address Counter, se desiderato)
 			sta DDR_B 				// Data Direction Register B
 BF_busy:
-			lda #(0 | RW | EN)		// porto a 1 sia R/W| (per leggere da LCD) sia  EN per attivare il comando			
+			lda #(0 | RW)
 			sta	PORT_A
-			lda #0					// clear RS RW EN 
+			ora #EN					// Strobe EN
+			sta PORT_A
+			eor #EN
 			sta	PORT_A
 			lda #%10000000			// leggo lo stato della porta B, il cui bit 7 è il Busy Flag; se è a 1 allora l'LCD è busy
 			bit PORT_B				// verifico se l'MSb (7) è a 1 (BIT setta Z se il risultato dell'AND del settimo bit è vero)   
@@ -98,8 +108,19 @@ BF_busy:
 
 helloworld:			
 			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"			
+			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"
+			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"			
+			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"
+			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"
+			.text "Hello, world! Vediamo se questa volta il meccanismo funziona come dovrebbe!"
 			.byte $ff				
-							
-			*=$fffc
-			.word reset
-			.word $0000
+
+//	this will make a small (2K) .BIN; changing .bytes helps check if the programming operation was OK
+ 			*=$87FE
+			.byte $22			
+			.byte $29
+
+//	remove the commenting out (//) in order to make a 32K ROM
+// 			*=$fffc
+//			.word reset
+// 			.word $0000
