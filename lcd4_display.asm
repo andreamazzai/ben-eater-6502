@@ -116,7 +116,7 @@ helloworld:
 			.byte $ff				
 
 //	this will make a small (2K) .BIN; changing .bytes helps check if the programming operation was OK
- 			*=$87FE
+ 			*=$8FFE
 			.byte $22			
 			.byte $29
 

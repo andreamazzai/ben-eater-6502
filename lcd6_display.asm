@@ -73,7 +73,7 @@ begin_delay_loop_exit:
 			//lda #RS				// RS = HI select DR
 			//sta	PORT_A
 
-	jmp print_helloworld_exit // Bypass print "hello world" 
+	// jmp print_helloworld_exit // Bypass print "hello world" 
 
 print_helloworld:
 			ldx #$00
@@ -86,7 +86,7 @@ print_helloworld_loop:
 			bne print_helloworld_loop 
 print_helloworld_exit:
 
-	jmp print_scrollertext_prepare
+	// jmp print_scrollertext_prepare
 	// jmp LCD_scroll_chars
 	// jmp line2_write_exit	
 	// jmp end
@@ -150,7 +150,7 @@ direct_w_line2_write_exit:
 			+++++++++++++++++++++++++++++++++++++++++
   			+++++++++++++++++++++++++++++++++++++++*/
 
-	// format some RAM; data read from LCD stored here in order to be able to check if meaningful / nonsense
+	// prepare some RAM; data read from LCD stored here in order to be able to check if meaningful / nonsense
 		ldx #$00
 		txa
 clean_ram_loop:
@@ -364,7 +364,6 @@ LCD_swap_lines_loop:
 			jmp LCD_swap_lines_loop
 LCD_swap_lines_end:
 
-
 			/*+++++++++++++++++++++++++++++++++++++++
 			+++++++++++++++++++++++++++++++++++++++++
 			++++++++++++++ SCROLL TEST ++++++++++++++  
@@ -406,15 +405,16 @@ LCD_scroll_chars:
 			sta PORT_A
 			ora #EN					// Strobe EN
 			sta PORT_A
-			lda PORT_B 				// Read char from DDRAM 1st line and store in stack
+			lda PORT_B 				// Read first char from DDRAM 1st line and store in stack
 			pha
-			sta $55					// TMP storage			
-			lda PORT_A
+			sta $55					// also store in TMP storage			
+			lda PORT_A				// Strobe EN
 			eor #EN
 			sta PORT_A				// DDRAM characted read
 
-		// begin of repeatable code
+
 			ldx #$0f				// First char read is rightmost on the display, line 1
+		// begin of repeatable code
 LCD_scroll_lines_loop:
 			lda #%11111111			// Set PORT_B pins for output because we send a command first 
 			sta DDR_B
@@ -422,7 +422,7 @@ LCD_scroll_lines_loop:
 			ora #%10000000			// Set DDRAM Address command ($80) + 7 bits Address			
 			jsr lcd_instruction			
 
-/* codice originale sostituito da jsr lcd_instruction qui sopra			
+/* this is the code that was later substituted with above jsr lcd_instruction			
 			sta PORT_B
 			jsr check_busy						
 			lda #(0 | 0)			// RS LO (select IR); R/!W LO (write operation)
@@ -432,22 +432,20 @@ LCD_scroll_lines_loop:
 			eor #EN
 			sta PORT_A				// Command sent
 */
-	jsr check_busy			
-			
+			jsr check_busy			// do I need this?
 			lda #%00000000			// Set PORT_B pins for input 
 			sta DDR_B
 			lda #(RS | RW)			// RS HI (select DR); R/!W HI (read operation)
 			sta PORT_A
 			ora #EN					// Strobe EN
 			sta PORT_A
-			lda PORT_B 				// Read char and save in stack
+			lda PORT_B 				// Read chars from rightmost to leftmost position and save in stack
 			pha
-
 			lda #%11111111			// Set PORT_B pins for output because we send a command first 
 			sta DDR_B
 			txa
 			ora #%10000000			// Set DDRAM Address command ($80) + 7 bits Address			
-			jsr lcd_instruction			
+			jsr lcd_instruction
 
 			lda $55					// Read char from TMP storage			
 			sta PORT_B
@@ -539,7 +537,7 @@ line2text:
 			.text "2nd line of LCD!"
 			.byte $ff
 line1text_2:
-			.text "ABCDEFGHIJKLMNOP"
+			.text "ABCDEFGHIJKLMNO-"
 			.byte $ff
 line2text_2:
 			.text "FEDCBA9876543210"
