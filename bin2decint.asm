@@ -2,8 +2,8 @@
 // start=$F000 (for Kick Assembler) 
 
 //----------------------------------------------------
-//			Code used on Ben Eater's 6502 computer
-//			Divide algorithm https://www.youtube.com/watch?v=v3-a-zqKfgA 
+// This code running used on Ben Eater's 6502 computer
+// Divide algorithm https://www.youtube.com/watch?v=v3-a-zqKfgA 
 //----------------------------------------------------
 			*=$F000
 .encoding	"ascii"
